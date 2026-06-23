@@ -1,0 +1,62 @@
+import express from "express";
+import { body, validationResult } from "express-validator";
+import { register, login, getMe } from "../controllers/authController.js";
+import { protect } from "../middleware/auth.js";
+
+const router = express.Router();
+
+//validation middleware
+const handleValidationError = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!error.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      error: error.array()[0].msg,
+    });
+  }
+
+  next();
+};
+
+//POST /api/auth/register
+
+router.post(
+  "/register",
+  [
+    body("name")
+      .trim()
+      .isLength({ min: 2, max: 50 })
+      .withMessage("Name must be between 2 and 50 characters"),
+    body("email")
+      .isEmail()
+      .normalizeEmail()
+      .withMessage("Please provide a valid email"),
+    body("password")
+      .isLength({ min: 6, max: 100 })
+      .withMessage("Password must be at least 6 characters"),
+  ],
+  handleValidationError,
+  register,
+);
+
+//POST /api/auth/login
+
+router.post(
+  "/login",
+  [
+    body("email")
+      .isEmail()
+      .normalizeEmail()
+      .withMessage("Please provide a valid email"),
+    body("password")
+      .isLength({ min: 6 })
+      .withMessage("Password must be at least 6 characters"),
+  ],
+  handleValidationError,
+  login,
+);
+
+//GET /api/auth/me
+router.get("/me",protect, getMe);
+
+export default router;
