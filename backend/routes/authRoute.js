@@ -8,10 +8,10 @@ const router = express.Router();
 //validation middleware
 const handleValidationError = (req, res, next) => {
   const errors = validationResult(req);
-  if (!error.isEmpty()) {
+  if (!errors.isEmpty()) {
     return res.status(400).json({
       success: false,
-      error: error.array()[0].msg,
+      error: errors.array()[0].msg,
     });
   }
 
@@ -57,6 +57,6 @@ router.post(
 );
 
 //GET /api/auth/me
-router.get("/me",protect, getMe);
+router.get("/me", protect, getMe);
 
 export default router;
